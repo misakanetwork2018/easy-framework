@@ -1,0 +1,9 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>404 Not Found</title>
+</head>
+<body>
+<p>404 Not Found</p>
+</body>
+</html>
