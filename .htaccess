@@ -6,6 +6,7 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.+?)/(.+?)$ index.php?m=$1&a=$2 [L,QSA]
+    RewriteRule ^(.+?)$ index.php?m=$1 [L,QSA] # 一条不够？写两条就好了！
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

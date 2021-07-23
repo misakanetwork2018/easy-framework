@@ -12,7 +12,7 @@
 <body>
 <p>系统发生错误<?php if ($this->show): ?>：<?php echo $this->e->getMessage() ?></p>
 <pre>
-    <?php debug_print_backtrace(); ?>
+<?php debug_print_backtrace(); ?>
 </pre>
 <?php else: ?>
     </p>
