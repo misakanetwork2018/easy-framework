@@ -6,6 +6,7 @@ use EasyFrameworkCore\Container\Manager as ContainerMan;
 use EasyFrameworkCore\Exception\ClassNotExistException;
 use EasyFrameworkCore\Exception\Handler;
 use EasyFrameworkCore\Exception\MiddlewareInterceptException;
+use EasyFrameworkCore\Exception\MissingModuleNamespaceConfigException;
 use EasyFrameworkCore\Helper\Str;
 use EasyFrameworkCore\Http\Request;
 use EasyFrameworkCore\Http\Response;
@@ -16,7 +17,7 @@ class App
 
     private static array $namespaces = ["EasyFrameworkCore" => "core"];
 
-    private string $moduleNamespace = "App";
+    private string $module_namespace;
 
     /**
      * 实际上是容器管理器的一个alias
@@ -34,9 +35,10 @@ class App
     /**
      * @throws ClassNotExistException
      */
-    public function __construct()
+    public function __construct($moduleNamespace)
     {
         self::$container = $container = new ContainerMan($this);
+        $this->module_namespace = $moduleNamespace;
 
         $container->make(Handler::class)->register();
 
@@ -44,19 +46,28 @@ class App
         $container->make(DB::class, self::config('db'));
     }
 
-    public static function init(): App
+    /**
+     * @throws MissingModuleNamespaceConfigException
+     * @throws ClassNotExistException
+     */
+    public static function init($moduleNamespace = "App"): App
     {
         session_start();
 
-        $helper_filename = APP_ROOT . DIRECTORY_SEPARATOR . "modules" . DIRECTORY_SEPARATOR . "functions.php";
-        if (file_exists($helper_filename))
-            require_once $helper_filename;
+        if (isset(self::$namespaces[$moduleNamespace])) {
+            $modules_path = self::$namespaces[$moduleNamespace];
+            $helper_filename = APP_ROOT . DIRECTORY_SEPARATOR . $modules_path . DIRECTORY_SEPARATOR . "functions.php";
+            if (file_exists($helper_filename))
+                require_once $helper_filename;
+        } else {
+            throw new MissingModuleNamespaceConfigException();
+        }
 
         spl_autoload_register([self::class, 'autoload']);
 
         date_default_timezone_set('Asia/Shanghai');
 
-        return new static();
+        return new static($moduleNamespace);
     }
 
     public static function autoload($class): void
@@ -107,11 +118,6 @@ class App
         return true;
     }
 
-    public function setModuleNamespace($appNamespace): void
-    {
-        $this->moduleNamespace = $appNamespace;
-    }
-
     private static function show404Page(): void
     {
         http_response_code(404);
@@ -138,7 +144,7 @@ class App
         $module = $request->get('m', 'index');
         $action = $request->get('a', 'index');
 
-        $class = "\\" . $this->moduleNamespace . "\\" . Str::toPascal($module);
+        $class = "\\" . $this->module_namespace . "\\" . Str::toPascal($module);
         $method = Str::toCamel($action);
 
         if (!class_exists($class)) {
