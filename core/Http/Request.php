@@ -1,23 +1,14 @@
 <?php
 
-namespace Http;
+namespace EasyFrameworkCore\Http;
 
 class Request
 {
-    /**
-     * @var array
-     */
-    private $_gets;
+    private array $_gets;
 
-    /**
-     * @var array
-     */
-    private $_posts;
+    private array $_posts;
 
-    /**
-     * @var array
-     */
-    private $attributes = [];
+    private array $attributes = [];
 
     public function __construct()
     {

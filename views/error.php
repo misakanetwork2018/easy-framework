@@ -1,4 +1,4 @@
-<html>
+<html lang="zh-Hans">
 <head>
     <meta charset="UTF-8">
     <title>系统发生错误</title>
@@ -10,12 +10,13 @@
     </style>
 </head>
 <body>
-<p>系统发生错误<?php if ($this->show): ?>：<?php echo $this->e->getMessage() ?></p>
+<?php if ($this->show): ?>
+<p>系统发生错误：<?php echo $this->e->getMessage() ?></p>
 <pre>
 <?php debug_print_backtrace(); ?>
 </pre>
 <?php else: ?>
-    </p>
+<p>系统发生错误，请联系网站管理员</p>
 <?php endif; ?>
 </body>
 </html>

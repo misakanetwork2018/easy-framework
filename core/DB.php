@@ -1,14 +1,18 @@
 <?php
 
-use Helper\Arr;
+namespace EasyFrameworkCore;
+
+use EasyFrameworkCore\Helper\Arr;
+use PDO;
+use PDOStatement;
 
 class DB
 {
-    /**
-     * @var PDO
-     */
-    private $pdo;
+    public readonly PDO $pdo;
 
+    /**
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     */
     public function __construct($configs = [])
     {
         ['host' => $host, 'port' => $port, 'user' => $user, 'pass' => $pass,
@@ -21,21 +25,11 @@ class DB
     }
 
     /**
-     * 获取PDO对象
-     *
-     * @return PDO
-     */
-    public function getPdo(): PDO
-    {
-        return $this->pdo;
-    }
-
-    /**
      * 获取最后插入的id
      *
      * @return string
      */
-    public function lastInsertId()
+    public function lastInsertId(): string
     {
         return $this->pdo->lastInsertId();
     }
@@ -49,7 +43,7 @@ class DB
      * @param callable|null $each
      * @return array|mixed|null
      */
-    public function query($sql, $binds = [], $selectOne = false, ?callable $each = null)
+    public function query($sql, array $binds = [], bool $selectOne = false, ?callable $each = null): mixed
     {
         [$stmt, $bool] = $this->do($sql, $binds); /* @var PDOStatement $stmt */
 
@@ -77,7 +71,7 @@ class DB
      * @param bool $getEffectRowNum
      * @return int|bool
      */
-    public function exec($sql, $binds = [], $getEffectRowNum = false)
+    public function exec($sql, array $binds = [], bool $getEffectRowNum = false): bool|int
     {
         [$stmt, $bool] = $this->do($sql, $binds); /* @var PDOStatement $stmt */
 
@@ -95,7 +89,7 @@ class DB
      * @param array $binds
      * @return array
      */
-    private function do($sql, $binds = [])
+    private function do($sql, array $binds = []): array
     {
         $stmt = $this->pdo->prepare($sql);
 
@@ -107,17 +101,17 @@ class DB
         return [$stmt, $bool];
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         return $this->pdo->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): bool
     {
         return $this->pdo->commit();
     }
 
-    public function rollback()
+    public function rollback(): bool
     {
         return $this->pdo->rollBack();
     }

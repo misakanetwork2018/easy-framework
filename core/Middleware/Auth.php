@@ -1,8 +1,8 @@
 <?php
 
-namespace Middleware;
+namespace EasyFrameworkCore\Middleware;
 
-use Http\Request;
+use EasyFrameworkCore\Http\Request;
 
 class Auth implements Middleware
 {

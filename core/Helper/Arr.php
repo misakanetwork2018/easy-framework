@@ -1,10 +1,10 @@
 <?php
 
-namespace Helper;
+namespace EasyFrameworkCore\Helper;
 
 class Arr
 {
-    public static function wrap($val)
+    public static function wrap($val): array
     {
         if (is_array($val)) return $val;
 

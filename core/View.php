@@ -1,6 +1,8 @@
-<?php
+<?php /** @noinspection PhpPropertyOnlyWrittenInspection */
 
-use Http\Request;
+namespace EasyFrameworkCore;
+
+use EasyFrameworkCore\Http\Request;
 
 /**
  * 视图姬
@@ -14,23 +16,17 @@ class View
      *
      * @var string
      */
-    private $view;
+    private string $view;
+
+    private Config $config;
+
+    private array $data = [];
+
+    private Request $request;
 
     /**
-     * @var Config
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
      */
-    private $config;
-
-    /**
-     * @var array
-     */
-    private $data = [];
-
-    /**
-     * @var Request
-     */
-    private $request;
-
     public function __construct($view)
     {
         $this->view = $view;
@@ -42,7 +38,7 @@ class View
      * @param string $view
      * @return View
      */
-    public function setView(string $view)
+    public function setView(string $view): View
     {
         $this->view = $view;
 
@@ -53,29 +49,34 @@ class View
      * @param Request $request
      * @return View
      */
-    public function setRequest(Request $request)
+    public function setRequest(Request $request): View
     {
         $this->request = $request;
 
         return $this;
     }
 
-    public static function make($view, $data = [])
+    /**
+     * 生成View对象
+     *
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     */
+    public static function make($view, $data = []): View
     {
-        return (new static($view))->with($data)->setRequest(App::make(Request::class));
+        return new static($view)->with($data)->setRequest(App::make(Request::class));
     }
 
-    public function render()
+    public function render(): void
     {
         include APP_ROOT . "/views/" . $this->getViewPath() . ".php";
     }
 
-    public function isExist()
+    public function isExist(): bool
     {
         return file_exists(APP_ROOT . "/views/" . $this->getViewPath() . ".php");
     }
 
-    private function getViewPath()
+    private function getViewPath(): string
     {
         return str_replace("." , DIRECTORY_SEPARATOR, $this->view);
     }
@@ -90,7 +91,7 @@ class View
         echo $this->data[$name] ?? null;
     }
 
-    public function with($key, $value = null)
+    public function with($key, $value = null): View
     {
         if (is_array($key)) {
             $this->data = array_merge($this->data, $key);

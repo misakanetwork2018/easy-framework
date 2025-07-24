@@ -8,7 +8,7 @@ return [
         'port' => 3306,
         'user' => 'root',
         'pass' => '',
-        'name' => 'gacha',
+        'name' => '',
         'charset' => 'utf8'
     ],
 ];

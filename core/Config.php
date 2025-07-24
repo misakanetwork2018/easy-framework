@@ -1,11 +1,10 @@
 <?php
 
+namespace EasyFrameworkCore;
+
 class Config
 {
-    /**
-     * @var array
-     */
-    private $configs = [];
+    private array $configs = [];
 
     public function __construct()
     {
@@ -31,12 +30,12 @@ class Config
         return $newData;
     }
 
-    public function set($key, $val)
+    public function set($key, $val): void
     {
         $this->configs[$key] = $val;
     }
 
-    public function show($key, $default = null)
+    public function show($key, $default = null): void
     {
         echo $this->get($key, $default);
     }

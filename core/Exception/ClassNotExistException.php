@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace EasyFrameworkCore\Exception;
 
 use Exception;
 

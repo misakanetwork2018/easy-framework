@@ -1,8 +1,12 @@
 <?php
 
-define('APP_ROOT', __DIR__);
+use EasyFrameworkCore\App;
 
-require_once APP_ROOT . "/include/App.php";
+const APP_ROOT = __DIR__;
+
+require_once APP_ROOT . "/core/App.php";
+
+App::bindVendorNamespace("App", "modules");
 
 $app = App::init();
 

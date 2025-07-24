@@ -1,9 +1,9 @@
 <?php
 
-namespace Container;
+namespace EasyFrameworkCore\Container;
 
-use App;
-use Exception\ClassNotExistException;
+use EasyFrameworkCore\App;
+use EasyFrameworkCore\Exception\ClassNotExistException;
 
 /**
  * 容器管理器
@@ -12,10 +12,7 @@ use Exception\ClassNotExistException;
  */
 class Manager
 {
-    /**
-     * @var array
-     */
-    private $instances;
+    private array $instances = [];
 
     public function __construct(App $app)
     {
@@ -30,7 +27,7 @@ class Manager
      * @return mixed
      * @throws ClassNotExistException
      */
-    public function make($class, ...$arguments)
+    public function make($class, ...$arguments): mixed
     {
         if (!class_exists($class))
             throw new ClassNotExistException();
