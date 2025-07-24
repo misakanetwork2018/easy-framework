@@ -13,10 +13,13 @@ class View
 {
     /**
      * 视图文件
-     *
-     * @var string
      */
     private string $view;
+
+    /**
+     * 布局文件
+     */
+    private string|null $layout = null;
 
     private Config $config;
 
@@ -68,17 +71,33 @@ class View
 
     public function render(): void
     {
-        include APP_ROOT . "/views/" . $this->getViewPath() . ".php";
+        if (empty($this->layout))
+            new Render($this)();
+        else
+            new LayoutRender($this)();
     }
 
     public function isExist(): bool
     {
-        return file_exists(APP_ROOT . "/views/" . $this->getViewPath() . ".php");
+        return file_exists($this->getViewPath());
     }
 
-    private function getViewPath(): string
+    public function getViewPath(): string
     {
-        return str_replace("." , DIRECTORY_SEPARATOR, $this->view);
+        if (empty($this->layout)) {
+            $file_path = str_replace("." , DIRECTORY_SEPARATOR, $this->view);
+        } else {
+            $file_path = str_replace("." , DIRECTORY_SEPARATOR, $this->layout);
+        }
+
+        return APP_ROOT . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . $file_path . ".php";
+    }
+
+    public function getBodyViewPath(): string
+    {
+        $file_path = str_replace("." , DIRECTORY_SEPARATOR, $this->view);
+
+        return APP_ROOT . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . $file_path . ".php";
     }
 
     public function __get($name)

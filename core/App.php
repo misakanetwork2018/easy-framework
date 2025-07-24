@@ -56,7 +56,11 @@ class App
 
         if (isset(self::$namespaces[$moduleNamespace])) {
             $modules_path = self::$namespaces[$moduleNamespace];
-            $helper_filename = APP_ROOT . DIRECTORY_SEPARATOR . $modules_path . DIRECTORY_SEPARATOR . "functions.php";
+            if (!str_starts_with($modules_path, DIRECTORY_SEPARATOR))
+                $modules_path = DIRECTORY_SEPARATOR . $modules_path;
+            if (!str_ends_with($modules_path, DIRECTORY_SEPARATOR))
+                $modules_path = $modules_path . DIRECTORY_SEPARATOR;
+            $helper_filename = APP_ROOT . $modules_path . "functions.php";
             if (file_exists($helper_filename))
                 require_once $helper_filename;
         } else {
