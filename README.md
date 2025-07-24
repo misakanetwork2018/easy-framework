@@ -12,6 +12,7 @@
 - 标准目录结构，符合PSR-4自动加载规范
 - 支持全局助手函数（modules\functions.php）
 - 基于PHP8.4开发
+- 支持布局文件，可自由设定布局文件，在 `index.php` 增加 `View::$defaultLayout = "layout";` 即可
 
 ## 缺点
 - App::run方法目前没有外部手段可以做Hook，要重写一些功能只能直接改，或者为了同步上游代码，可以另外创建一个类并继承App类

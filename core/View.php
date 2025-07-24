@@ -19,7 +19,9 @@ class View
     /**
      * 布局文件
      */
-    private string|null $layout = null;
+    private string|null $layout;
+
+    public static string|null $defaultLayout;
 
     private Config $config;
 
@@ -33,6 +35,7 @@ class View
     public function __construct($view)
     {
         $this->view = $view;
+        $this->layout = self::$defaultLayout;
 
         $this->config = App::config();
     }
@@ -44,6 +47,13 @@ class View
     public function setView(string $view): View
     {
         $this->view = $view;
+
+        return $this;
+    }
+
+    public function setLayout(string $layout): View
+    {
+        $this->layout = $layout;
 
         return $this;
     }
@@ -71,10 +81,10 @@ class View
 
     public function render(): void
     {
-        if (empty($this->layout))
-            new Render($this)();
-        else
+        if ($this->isLayoutAvailable())
             new LayoutRender($this)();
+        else
+            new Render($this)();
     }
 
     public function isExist(): bool
@@ -98,6 +108,11 @@ class View
         $file_path = str_replace("." , DIRECTORY_SEPARATOR, $this->view);
 
         return APP_ROOT . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . $file_path . ".php";
+    }
+
+    public function isLayoutAvailable(): bool
+    {
+        return !empty($this->layout) && file_exists($this->getViewPath());
     }
 
     public function __get($name)
