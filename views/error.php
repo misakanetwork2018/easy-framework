@@ -11,9 +11,12 @@
 </head>
 <body>
 <?php if ($this->show): ?>
-<p>系统发生错误：<?php echo $this->e->getMessage() ?></p>
+<p>
+    系统发生错误：<?php echo $this->e->getMessage() ?>
+    在文件 <code><?php echo $this->e->getFile() ?>:<?php echo $this->e->getLine() ?></code>
+</p>
 <pre>
-<?php debug_print_backtrace(); ?>
+<?php echo $this->e->getTraceAsString(); ?>
 </pre>
 <?php else: ?>
 <p>系统发生错误，请联系网站管理员</p>

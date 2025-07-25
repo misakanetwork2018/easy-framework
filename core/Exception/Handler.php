@@ -2,14 +2,14 @@
 
 namespace EasyFrameworkCore\Exception;
 
+use EasyFrameworkCore\Helper\Str;
+use Exception;
 use Throwable;
 use EasyFrameworkCore\View;
 use EasyFrameworkCore\App;
 
 class Handler
 {
-    private string $view = 'error';
-
     public int $memoryReserveSize = 262144;//备用内存大小
 
     private mixed $_memoryReserve;//备用内存
@@ -80,6 +80,29 @@ class Handler
     }
 
     /**
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     */
+    private function showErrorPage($data): void
+    {
+        http_response_code(500);
+        $class = "\\" . App::make(App::class)->module_namespace . "\\Error";
+        $method = Str::toCamel('showError');
+
+        if (method_exists($class, $method)) {
+            $obj = new $class();
+            $resp = $obj->$method();
+
+            self::render($resp);
+        } else {
+            $view = View::make('error', $data);
+            if ($view->isExist())
+                $view->render();
+            else
+                echo 'Error, and no default error page.';
+        }
+    }
+
+    /**
      * 渲染错误页面
      *
      * @param $exception
@@ -93,14 +116,9 @@ class Handler
                 debug_print_backtrace();
             } else {
                 ob_end_clean();
-                http_response_code(500);
-                $view = View::make($this->view, ['e' => $exception, 'show' => App::config('debug')]);
-                if ($view->isExist())
-                    $view->render();
-                else
-                    echo "Error, and no default error page.";
+                $this->showErrorPage(['e' => $exception, 'show' => App::config('debug')]);
             }
-        } catch (ClassNotExistException) {
+        } catch (Throwable) {
             // 万一连这个都坏了，为了避免死循环，将会直接输出以下文本
             echo "App broken, you should check the completeness of the system.";
         }
@@ -120,7 +138,7 @@ class Handler
         $filename = $log_dir . '/' . date('Ymd') . '.log';
         $handle = fopen($filename, "a+");
         fwrite($handle, date('Y-m-d H:i:s') . " system error: {$exception->getMessage()} at ".
-            "{$exception->getFile()}:{$exception->getLine()}\n");
+                "{$exception->getFile()}:{$exception->getLine()}\n");
         fwrite($handle, "{$exception->getTraceAsString()}\n");
         fclose($handle);
     }

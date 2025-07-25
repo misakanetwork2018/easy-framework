@@ -21,7 +21,7 @@ class View
      */
     private string|null $layout;
 
-    public static string|null $defaultLayout;
+    public static string|null $defaultLayout = null;
 
     private Config $config;
 

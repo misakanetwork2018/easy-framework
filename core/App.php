@@ -17,7 +17,7 @@ class App
 
     private static array $namespaces = ["EasyFrameworkCore" => "core"];
 
-    private string $module_namespace;
+    private(set) string $module_namespace;
 
     /**
      * 实际上是容器管理器的一个alias
@@ -52,6 +52,7 @@ class App
      */
     public static function init($moduleNamespace = "App"): App
     {
+        ob_start();
         session_start();
 
         if (isset(self::$namespaces[$moduleNamespace])) {
@@ -122,13 +123,45 @@ class App
         return true;
     }
 
-    private static function show404Page(): void
+    /**
+     * 优先走Error->show404
+     *
+     * @return void
+     */
+    private function show404Page(): void
     {
         http_response_code(404);
         try {
-            View::make('404')->render();
+            $class = "\\" . $this->module_namespace . "\\Error";
+            $method = Str::toCamel('show404');
+
+            if (method_exists($class, $method)) {
+                $obj = new $class();
+                $resp = $obj->$method();
+
+                self::render($resp);
+            } else {
+                $view = View::make('404');
+                if ($view->isExist())
+                    $view->render();
+                else
+                    echo '404';
+            }
         } catch (ClassNotExistException) {
             echo '404';
+        }
+    }
+
+    private static function render($resp): void
+    {
+        if ($resp instanceof Response) {
+            $resp->render();
+        } elseif ($resp instanceof View) {
+            $resp->render();
+        } elseif (is_array($resp)) {
+            Response::make($resp)->render();
+        } else {
+            echo $resp;
         }
     }
 
@@ -169,15 +202,7 @@ class App
             $resp = $e->content;
         }
 
-        if ($resp instanceof Response) {
-            $resp->render();
-        } elseif ($resp instanceof View) {
-            $resp->render();
-        } elseif (is_array($resp)) {
-            Response::make($resp)->render();
-        } else {
-            echo $resp;
-        }
+        self::render($resp);
 
         return true;
     }

@@ -18,7 +18,7 @@ class Render
 
     public function __get($name)
     {
-        return $this->view[$name] ?? null;
+        return $this->view->$name ?? null;
     }
 
     public function __call($name, $arguments)
