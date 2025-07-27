@@ -9,7 +9,7 @@ use EasyFrameworkCore\Http\Request;
  * PHP原生，无需处理
  * 这玩意不是单例的，别把它怼进去了，直接用make方法快速生成
  */
-class View
+class View implements RenderInterface
 {
     /**
      * 视图文件

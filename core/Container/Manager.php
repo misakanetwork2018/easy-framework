@@ -43,7 +43,7 @@ class Manager
         return $obj;
     }
 
-    private function injectProc($obj): void
+    public function injectProc($obj): void
     {
         $reflection = new ReflectionObject($obj);
 

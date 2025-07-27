@@ -2,7 +2,9 @@
 
 namespace EasyFrameworkCore\Http;
 
-class Response
+use EasyFrameworkCore\RenderInterface;
+
+class Response implements RenderInterface
 {
     public mixed $content;
 

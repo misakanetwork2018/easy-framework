@@ -5,9 +5,8 @@ namespace EasyFrameworkCore;
 use EasyFrameworkCore\Container\Manager as ContainerMan;
 use EasyFrameworkCore\Exception\ClassNotExistException;
 use EasyFrameworkCore\Exception\Handler;
-use EasyFrameworkCore\Exception\MiddlewareInterceptException;
 use EasyFrameworkCore\Exception\MissingModuleNamespaceConfigException;
-use EasyFrameworkCore\Helper\Str;
+use EasyFrameworkCore\Exception\RouteNotFoundException;
 use EasyFrameworkCore\Http\Request;
 use EasyFrameworkCore\Http\Response;
 
@@ -30,6 +29,11 @@ class App
     public static function make($class, ...$arguments): mixed
     {
         return self::$container->make($class, ...$arguments);
+    }
+
+    public static function getContainer(): ContainerMan
+    {
+        return self::$container;
     }
 
     /**
@@ -124,86 +128,44 @@ class App
     }
 
     /**
-     * 优先走Error->show404
-     *
-     * @return void
+     * @throws ClassNotExistException|\ReflectionException|RouteNotFoundException
      */
-    private function show404Page(): void
+    public function run(): bool
     {
-        http_response_code(404);
-        try {
-            $class = "\\" . $this->module_namespace . "\\Error";
-            $method = Str::toCamel('show404');
-
-            if (method_exists($class, $method)) {
-                $obj = new $class();
-                $resp = $obj->$method();
-
-                self::render($resp);
-            } else {
-                $view = View::make('404');
-                if ($view->isExist())
-                    $view->render();
-                else
-                    echo '404';
-            }
-        } catch (ClassNotExistException) {
-            echo '404';
+        if (self::config('maintain')) {
+            print_r('维护中，请稍后再访问');
+            return false;
         }
-    }
 
-    private static function render($resp): void
-    {
-        if ($resp instanceof Response) {
+        try {
+            $return = true;
+
+            $resp = Module::route($this->module_namespace);
+        } catch (RouteNotFoundException) {
+            ob_end_clean();
+            http_response_code(404);
+            $return = false;
+
+            // 优先走Error->show404
+            $resp = Module::route($this->module_namespace, true);
+
+            if ($resp === false) {
+                $resp = View::make('404');
+                if (!$resp->isExist())
+                    $resp = '404';
+            }
+        }
+
+        if (is_array($resp)) {
+            $resp = Response::make($resp);
+        }
+
+        if ($resp instanceof RenderInterface) {
             $resp->render();
-        } elseif ($resp instanceof View) {
-            $resp->render();
-        } elseif (is_array($resp)) {
-            Response::make($resp)->render();
         } else {
             echo $resp;
         }
-    }
 
-    public function run(): bool
-    {
-        try {
-            if (self::config('maintain')) {
-                print_r('维护中，请稍后再访问');
-                return false;
-            }
-
-            $request = self::make(Request::class);
-        } catch (ClassNotExistException) {
-            return false;
-        }
-
-        $module = $request->get('m', 'index');
-        $action = $request->get('a', 'index');
-
-        $class = "\\" . $this->module_namespace . "\\" . Str::toPascal($module);
-        $method = Str::toCamel($action);
-
-        if (!class_exists($class)) {
-            self::show404Page();
-            return false;
-        }
-
-        try {
-            $obj = new $class();
-
-            if (!method_exists($obj, $method)) {
-                self::show404Page();
-                return false;
-            }
-
-            $resp = $obj->$method();
-        } catch (MiddlewareInterceptException $e) {
-            $resp = $e->content;
-        }
-
-        self::render($resp);
-
-        return true;
+        return $return;
     }
 }

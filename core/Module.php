@@ -2,43 +2,102 @@
 
 namespace EasyFrameworkCore;
 
-use EasyFrameworkCore\Exception\MiddlewareInterceptException;
+use EasyFrameworkCore\Exception\RouteNotFoundException;
+use EasyFrameworkCore\Helper\Str;
 use EasyFrameworkCore\Http\Request;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionObject;
 
 class Module
 {
-    protected Request $request;
-
-    protected DB $db;
-
-    /**
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
-     */
-    public function __construct()
+    private function doMiddleware(Request $request, ReflectionMethod|ReflectionObject $reflection): mixed
     {
-        $this->request = App::make(Request::class);
-        $this->db = App::make(DB::class);
+        $middlewares = $reflection->getAttributes(\EasyFrameworkCore\Attribute\Middleware::class);
+        $resp = null;
+        foreach ($middlewares as $attr) {
+            $inst = $attr->newInstance();
+            $class_name = $inst->className;
+            if (!class_exists($class_name))
+                continue;
+
+            $classReflection = new ReflectionClass($class_name);
+            if (!$classReflection->implementsInterface(Middleware::class))
+                continue;
+
+            $m_obj = new $class_name();
+
+            $resp = $m_obj->handle($request, function () {
+                return null;
+            });
+
+            if ($resp !== null) {
+                return $resp;
+            }
+        }
+
+        return $resp;
     }
 
     /**
-     * 实现类似中间件的原理
-     *
-     * @param mixed ...$middleware
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException|MiddlewareInterceptException
+     * 禁止从外部直接创建，只能通过route方法
      */
-    public function middleware(...$middleware): void
+    private function __construct()
+    {
+
+    }
+
+    /**
+     * 路由到Module->Action
+     *
+     * @param string $ns
+     * @param bool $returnFalseWhenRouteFailed
+     * @return mixed
+     * @throws \EasyFrameworkCore\Exception\RouteNotFoundException
+     * @throws \ReflectionException
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     */
+    public static function route(string $ns, bool $returnFalseWhenRouteFailed = false): mixed
     {
         $request = App::make(Request::class);
+        $module = $request->get('m', 'index');
+        $action = $request->get('a', 'index');
 
-        foreach ($middleware as $m) {
-            $obj = new $m; /* @var \EasyFrameworkCore\Middleware\Middleware $obj */
-            $resp = $obj->handle($request, function () {
-                return 'next';
-            });
+        $class = "\\" . $ns . "\\" . Str::toPascal($module);
 
-            if ($resp !== 'next') {
-                throw new MiddlewareInterceptException($resp);
-            }
+        if (!class_exists($class)) {
+            if ($returnFalseWhenRouteFailed)
+                return false;
+            else
+                throw new RouteNotFoundException();
         }
+
+        $obj = new $class(); /* @var \EasyFrameworkCore\Module $obj */
+
+        $method = Str::toCamel($action);
+
+        if (!method_exists($obj, $method)) {
+            if ($returnFalseWhenRouteFailed)
+                return false;
+            else
+                throw new RouteNotFoundException();
+        }
+
+        // 处理中间件
+        $reflection = new ReflectionObject($obj);
+
+        $resp = $obj->doMiddleware($request, $reflection);
+
+        if ($resp !== null)
+            return $resp;
+
+        $resp = $obj->doMiddleware($request, $reflection->getMethod($method));
+
+        if ($resp !== null)
+            return $resp;
+
+        App::getContainer()->injectProc($obj);
+
+        return $obj->$method();
     }
 }

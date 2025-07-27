@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyFrameworkCore\Middleware;
+namespace EasyFrameworkCore;
 
 use EasyFrameworkCore\Http\Request;
 

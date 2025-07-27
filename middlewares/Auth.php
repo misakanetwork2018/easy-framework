@@ -1,15 +1,14 @@
 <?php
 
-namespace EasyFrameworkCore\Middleware;
+namespace Middlewares;
 
 use EasyFrameworkCore\Http\Request;
+use EasyFrameworkCore\Middleware;
 
 class Auth implements Middleware
 {
     public function handle(Request $request, $next)
     {
-        // 这里做一些认证的东西
-
         return $next($request);
     }
 }
