@@ -27,9 +27,7 @@ class Module
 
             $m_obj = new $class_name();
 
-            $resp = $m_obj->handle($request, function () {
-                return null;
-            });
+            $resp = $m_obj->handle($request);
 
             if ($resp !== null) {
                 return $resp;
@@ -96,8 +94,10 @@ class Module
         if ($resp !== null)
             return $resp;
 
+        // 依赖注入
         App::getContainer()->injectProc($obj);
 
+        // 若中间件未中断处理，则正常进入指定方法
         return $obj->$method();
     }
 }
