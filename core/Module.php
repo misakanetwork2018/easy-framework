@@ -27,6 +27,9 @@ class Module
 
             $m_obj = new $class_name();
 
+            // 依赖注入
+            App::getContainer()->injectProc($m_obj);
+
             $resp = $m_obj->handle($request);
 
             if ($resp !== null) {
