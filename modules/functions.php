@@ -8,19 +8,35 @@ if (!function_exists('route')) {
     /**
      * 获取路由链接
      *
-     * @param $module
-     * @param $action
+     * @param string $module
+     * @param string $action
      * @param array $queries
      */
-    function route($module, $action, array $queries = []): void
+    function route(string $module = 'Index', string $action = 'index', array $queries = []): void
     {
         $useQueries = false;
+        $url = '/';
 
         if (App::config('rewrite')) {
-            $url = "/$module/$action";
+            if ($module != 'Index')
+                $url .= $module;
+
+            if ($action != 'index')
+                $url = "/$module/$action";
         } else {
-            $url = "?m=$module&a=$action";
-            $useQueries = true;
+            if ($module != 'Index') {
+                $useQueries = true;
+                $url .= "?m=$module";
+            }
+
+            if ($action != 'index') {
+                if ($useQueries) {
+                    $url .= "&m=$module";
+                } else {
+                    $useQueries = true;
+                    $url .= "?m=$module";
+                }
+            }
         }
 
         foreach ($queries as $k => $v) {
