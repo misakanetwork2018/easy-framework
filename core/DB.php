@@ -10,9 +10,6 @@ class DB
 {
     public readonly PDO $pdo;
 
-    /**
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
-     */
     public function __construct($configs = [])
     {
         ['host' => $host, 'port' => $port, 'user' => $user, 'pass' => $pass,

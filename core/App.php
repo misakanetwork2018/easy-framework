@@ -99,16 +99,19 @@ class App
 
     /**
      * 获取配置
-     * @throws ClassNotExistException
      */
     public static function config($key = null, $default = null)
     {
-        $config = self::make(Config::class);
+        try {
+            $config = self::make(Config::class);
 
-        if (is_null($key))
-            return $config;
+            if (is_null($key))
+                return $config;
 
-        return $config->get($key, $default);
+            return $config->get($key, $default);
+        } catch (ClassNotExistException) {
+            return $default;
+        }
     }
 
     /**

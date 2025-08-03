@@ -29,9 +29,6 @@ class View implements RenderInterface
 
     private Request $request;
 
-    /**
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
-     */
     public function __construct($view)
     {
         $this->view = $view;

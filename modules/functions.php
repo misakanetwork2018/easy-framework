@@ -11,7 +11,6 @@ if (!function_exists('route')) {
      * @param $module
      * @param $action
      * @param array $queries
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
      */
     function route($module, $action, array $queries = []): void
     {
