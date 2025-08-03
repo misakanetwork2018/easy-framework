@@ -11,10 +11,9 @@ if (!function_exists('route')) {
      * @param $module
      * @param $action
      * @param array $queries
-     * @return string
      * @throws \EasyFrameworkCore\Exception\ClassNotExistException
      */
-    function route($module, $action, array $queries = []): string
+    function route($module, $action, array $queries = []): void
     {
         $useQueries = false;
 
@@ -34,6 +33,6 @@ if (!function_exists('route')) {
             }
         }
 
-        return $url;
+        echo $url;
     }
 }
