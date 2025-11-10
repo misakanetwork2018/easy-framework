@@ -14,7 +14,11 @@ class Request
     {
         $this->_gets = $_GET;
 
-        $this->_posts = $_POST;
+        if (empty($_POST) && str_contains($_SERVER["CONTENT_TYPE"], "application/json")) {
+            $this->_posts = json_decode(file_get_contents("php://input"), true);
+        } else {
+            $this->_posts = $_POST;
+        }
     }
 
     public function get($key = null, $default = null)
