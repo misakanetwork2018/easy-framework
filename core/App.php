@@ -69,7 +69,7 @@ class App
             if (file_exists($helper_filename))
                 require_once $helper_filename;
         } else {
-            throw new MissingModuleNamespaceConfigException();
+            throw new MissingModuleNamespaceConfigException($moduleNamespace);
         }
 
         spl_autoload_register([self::class, 'autoload']);

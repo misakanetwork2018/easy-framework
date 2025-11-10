@@ -70,7 +70,7 @@ class Module
             if ($returnFalseWhenRouteFailed)
                 return false;
             else
-                throw new RouteNotFoundException();
+                throw new RouteNotFoundException($module, $action);
         }
 
         $obj = new $class(); /* @var \EasyFrameworkCore\Module $obj */
@@ -81,7 +81,7 @@ class Module
             if ($returnFalseWhenRouteFailed)
                 return false;
             else
-                throw new RouteNotFoundException();
+                throw new RouteNotFoundException($module, $action);
         }
 
         // 处理中间件

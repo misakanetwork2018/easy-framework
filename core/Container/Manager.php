@@ -32,7 +32,7 @@ class Manager
     public function make($class, ...$arguments): mixed
     {
         if (!class_exists($class))
-            throw new ClassNotExistException();
+            throw new ClassNotExistException($class);
 
         if (!isset($this->instances[$class])) // 还没实例化就先实例化
             $this->instances[$class] = new $class(...$arguments);
@@ -43,6 +43,9 @@ class Manager
         return $obj;
     }
 
+    /**
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     */
     public function injectProc($obj): void
     {
         $reflection = new ReflectionObject($obj);
@@ -52,11 +55,7 @@ class Manager
                 // 需要注入
                 $type = $property->getType();
                 if ($type !== null && !$type->isBuiltin()) {
-                    try {
-                        $property->setValue($obj, $this->make($type->getName()));
-                    } catch (ClassNotExistException) {
-                        // 注入失败不处理
-                    }
+                    $property->setValue($obj, $this->make($type->getName()));
                 }
             }
         }
