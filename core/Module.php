@@ -2,6 +2,8 @@
 
 namespace EasyFrameworkCore;
 
+use EasyFrameworkCore\Exception\ClassNotExistException;
+use EasyFrameworkCore\Exception\NotMiddlewareException;
 use EasyFrameworkCore\Exception\RouteNotFoundException;
 use EasyFrameworkCore\Helper\Str;
 use EasyFrameworkCore\Http\Request;
@@ -11,6 +13,10 @@ use ReflectionObject;
 
 class Module
 {
+    /**
+     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     * @throws \EasyFrameworkCore\Exception\NotMiddlewareException
+     */
     private function doMiddleware(Request $request, ReflectionMethod|ReflectionObject $reflection): mixed
     {
         $middlewares = $reflection->getAttributes(\EasyFrameworkCore\Attribute\Middleware::class);
@@ -19,11 +25,11 @@ class Module
             $inst = $attr->newInstance();
             $class_name = $inst->className;
             if (!class_exists($class_name))
-                continue;
+                throw new ClassNotExistException($class_name);
 
             $classReflection = new ReflectionClass($class_name);
             if (!$classReflection->implementsInterface(Middleware::class))
-                continue;
+                throw new NotMiddlewareException($class_name);
 
             $m_obj = new $class_name();
 
