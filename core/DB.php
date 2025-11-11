@@ -35,12 +35,12 @@ class DB
      * 查询
      *
      * @param $sql
-     * @param array $binds
+     * @param mixed $binds
      * @param bool $selectOne
      * @param callable|null $each
      * @return array|mixed|null
      */
-    public function query($sql, array $binds = [], bool $selectOne = false, ?callable $each = null): mixed
+    public function query($sql, mixed $binds = null, bool $selectOne = false, ?callable $each = null): mixed
     {
         [$stmt, $bool] = $this->do($sql, $binds); /* @var PDOStatement $stmt */
 
@@ -61,14 +61,30 @@ class DB
     }
 
     /**
+     * 查询个数(仅支持count查询)
+     *
+     * @param $sql
+     * @param mixed $binds
+     * @return int
+     */
+    public function count($sql, mixed $binds = null): int
+    {
+        [$stmt, $bool] = $this->do($sql, $binds); /* @var PDOStatement $stmt */
+
+        if (!$bool || !$stmt instanceof PDOStatement) return 0;
+
+        return $stmt->fetch(PDO::FETCH_NUM)[0];
+    }
+
+    /**
      * 执行
      *
      * @param $sql
-     * @param array $binds
+     * @param mixed $binds
      * @param bool $getEffectRowNum
      * @return int|bool
      */
-    public function exec($sql, array $binds = [], bool $getEffectRowNum = false): bool|int
+    public function exec($sql, mixed $binds = null, bool $getEffectRowNum = false): bool|int
     {
         [$stmt, $bool] = $this->do($sql, $binds); /* @var PDOStatement $stmt */
 
@@ -83,10 +99,10 @@ class DB
      * 执行sql
      *
      * @param $sql
-     * @param array $binds
+     * @param $binds
      * @return array
      */
-    private function do($sql, array $binds = []): array
+    private function do($sql, $binds): array
     {
         $stmt = $this->pdo->prepare($sql);
 
