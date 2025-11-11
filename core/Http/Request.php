@@ -37,6 +37,21 @@ class Request
         return $this->_posts[$key] ?? $default;
     }
 
+    public function getMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+    public function isGetMethod(): bool
+    {
+        return $this->getMethod() === 'GET';
+    }
+
+    public function isPostMethod(): bool
+    {
+        return $this->getMethod() === 'POST';
+    }
+
     public function __set($name, $value)
     {
         $this->attributes[$name] = $value;
