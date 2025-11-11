@@ -63,6 +63,7 @@ class Module
      * @throws \EasyFrameworkCore\Exception\RouteNotFoundException
      * @throws \ReflectionException
      * @throws \EasyFrameworkCore\Exception\ClassNotExistException
+     * @throws \EasyFrameworkCore\Exception\NotMiddlewareException
      */
     public static function route(string $ns, bool $returnFalseWhenRouteFailed = false): mixed
     {
