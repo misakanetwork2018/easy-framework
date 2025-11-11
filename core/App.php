@@ -36,6 +36,45 @@ class App
         return self::$container;
     }
 
+    public static function generateUrl($module, $action, array $queries = []): string
+    {
+        $useQueries = false;
+        $url = '/';
+
+        if (App::config('rewrite')) {
+            if ($module != 'Index')
+                $url .= $module;
+
+            if ($action != 'index')
+                $url = "/$module/$action";
+        } else {
+            if ($module != 'Index') {
+                $useQueries = true;
+                $url .= "?m=$module";
+            }
+
+            if ($action != 'index') {
+                if ($useQueries) {
+                    $url .= "&m=$module";
+                } else {
+                    $useQueries = true;
+                    $url .= "?m=$module";
+                }
+            }
+        }
+
+        foreach ($queries as $k => $v) {
+            if ($useQueries) {
+                $url .= "&$k=$v";
+            } else {
+                $url .= "?$k=$v";
+                $useQueries = true;
+            }
+        }
+
+        return $url;
+    }
+
     /**
      * @throws ClassNotExistException
      */
