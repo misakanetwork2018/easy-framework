@@ -2,6 +2,9 @@
 
 namespace EasyFrameworkCore;
 
+use EasyFrameworkCore\Exception\ClassNotExistException;
+use EasyFrameworkCore\Http\Request;
+
 class Render
 {
     protected View $view;
@@ -18,7 +21,11 @@ class Render
 
     public function __get($name)
     {
-        return $this->view->$name ?? null;
+        try {
+            return $this->view->$name ?? App::make(Request::class)->$name;
+        } catch (ClassNotExistException) {
+            return null;
+        }
     }
 
     public function __call($name, $arguments)

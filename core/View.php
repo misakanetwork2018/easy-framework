@@ -27,8 +27,6 @@ class View implements RenderInterface
 
     private array $data = [];
 
-    private Request $request;
-
     public function __construct($view)
     {
         $this->view = $view;
@@ -56,24 +54,11 @@ class View implements RenderInterface
     }
 
     /**
-     * @param Request $request
-     * @return View
-     */
-    public function setRequest(Request $request): View
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
      * 生成View对象
-     *
-     * @throws \EasyFrameworkCore\Exception\ClassNotExistException
      */
     public static function make($view, $data = []): View
     {
-        return new static($view)->with($data)->setRequest(App::make(Request::class));
+        return new static($view)->with($data);
     }
 
     public function render(): void
