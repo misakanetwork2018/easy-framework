@@ -55,10 +55,10 @@ class App
 
             if ($action != 'index') {
                 if ($useQueries) {
-                    $url .= "&m=$module";
+                    $url .= "&a=$action";
                 } else {
                     $useQueries = true;
-                    $url .= "?m=$module";
+                    $url .= "?a=$action";
                 }
             }
         }
