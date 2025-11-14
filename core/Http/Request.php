@@ -61,4 +61,9 @@ class Request
     {
         return $this->attributes[$name] ?? null;
     }
+
+    public function __isset($name)
+    {
+        return isset($this->attributes[$name]);
+    }
 }

@@ -22,7 +22,9 @@ class Render
     public function __get($name)
     {
         try {
-            return $this->view->$name ?? App::make(Request::class)->$name;
+            if ($this->view->hasData($name))
+                return $this->view->getData($name);
+            return App::make(Request::class)->$name;
         } catch (ClassNotExistException) {
             return null;
         }
@@ -30,6 +32,18 @@ class Render
 
     public function __call($name, $arguments)
     {
-        $this->view->$name(...$arguments);
+        echo $this->view->getData($name);
+    }
+
+    public function __isset($name)
+    {
+        try {
+            if ($this->view->hasData($name))
+                return true;
+
+            if (isset(App::make(Request::class)->$name))
+                return true;
+        } catch (ClassNotExistException) {}
+        return false;
     }
 }

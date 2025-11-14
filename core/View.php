@@ -97,16 +97,6 @@ class View implements RenderInterface
         return !empty($this->layout) && file_exists($this->getViewPath());
     }
 
-    public function __get($name)
-    {
-        return $this->data[$name] ?? null;
-    }
-
-    public function __call($name, $arguments)
-    {
-        echo $this->data[$name] ?? null;
-    }
-
     public function with($key, $value = null): View
     {
         if (is_array($key)) {
@@ -116,5 +106,15 @@ class View implements RenderInterface
         }
 
         return $this;
+    }
+
+    public function hasData($name): bool
+    {
+        return isset($this->data[$name]);
+    }
+
+    public function getData($name)
+    {
+        return $this->data[$name] ?? null;
     }
 }
